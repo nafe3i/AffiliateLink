@@ -1,4 +1,4 @@
-package com.affiliatelink.profile.common.exception;
+package com.affiliatelink.common.exception;
 
 public class PublisherNotFoudException extends RuntimeException {
 

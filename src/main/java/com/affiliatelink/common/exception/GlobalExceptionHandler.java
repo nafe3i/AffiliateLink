@@ -1,4 +1,4 @@
-package com.affiliatelink.profile.common.exception;
+package com.affiliatelink.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
