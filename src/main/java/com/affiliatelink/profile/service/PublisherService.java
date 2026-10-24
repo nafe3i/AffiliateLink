@@ -1,7 +1,7 @@
 package com.affiliatelink.profile.service;
 
 import com.affiliatelink.common.exception.EmailAlreadyExistsException;
-import com.affiliatelink.common.exception.PublisherNotFoudException;
+import com.affiliatelink.common.exception.ProfileNotFoudException;
 import com.affiliatelink.profile.dto.publisherDto.CreatePublisherRequestDTO;
 import com.affiliatelink.profile.dto.publisherDto.PublisherResponseDTO;
 import com.affiliatelink.profile.entity.Publisher;
@@ -49,11 +49,10 @@ public class PublisherService {
 
         Optional<Publisher> publisher = publisherRepository.findById(idPublisher);
         if (publisher.isEmpty()) {
-            throw new PublisherNotFoudException("Publisher not foud.");
+            throw new ProfileNotFoudException("Publisher not foud.");
 
         }
         return toResponseDTO(publisher.get());
-//        return toResponseDTO(publisher);
     }
 
     private PublisherResponseDTO toResponseDTO(Publisher publisher) {

@@ -1,5 +1,7 @@
 package com.affiliatelink.profile.entity;
 
+import com.affiliatelink.common.exception.EmailRequiredException;
+import com.affiliatelink.common.exception.StatusCompteExcetion;
 import com.affiliatelink.profile.entity.enums.ProfileStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -32,7 +34,7 @@ public abstract class Profile {
 
     protected Profile(String email) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email is required");
+            throw new EmailRequiredException("Email is required");
         }
 
         this.email = email;
@@ -57,7 +59,7 @@ public abstract class Profile {
     public void activate() {
         if (status != ProfileStatus.PENDING
                 && status != ProfileStatus.SUSPENDED) {
-            throw new IllegalStateException(
+            throw new StatusCompteExcetion(
                     "Activation impossible depuis " + status
             );
         }
@@ -67,13 +69,14 @@ public abstract class Profile {
 
     public void suspend() {
         if (status != ProfileStatus.ACTIVE) {
-            throw new IllegalStateException(
+            throw new StatusCompteExcetion(
                     "Suspension impossible depuis " + status
             );
         }
 
         status = ProfileStatus.SUSPENDED;
     }
+
 
 
 }

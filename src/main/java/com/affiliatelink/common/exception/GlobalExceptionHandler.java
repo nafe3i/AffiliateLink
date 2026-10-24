@@ -25,14 +25,23 @@ public class GlobalExceptionHandler {
                 .body(body);
     }
 
-    @ExceptionHandler(PublisherNotFoudException.class)
-    public ResponseEntity<Map<String, String>> handlePublisherNotFound(PublisherNotFoudException exception
+    @ExceptionHandler(ProfileNotFoudException.class)
+    public ResponseEntity<Map<String, String>> handlePublisherNotFound(ProfileNotFoudException exception
     ) {
         Map<String, String> body = Map.of(
-                "error", "PUBLISHER NIT FOUND",
+                "error", "PROFIL NIT FOUND",
                 "message", exception.getMessage()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(EmailRequiredException.class)
+    public ResponseEntity<Map<String, String>> handleEmailRequired(EmailRequiredException exception) {
+        Map<String, String> body = Map.of(
+                "error", "EMAIL REQURED",
+                "message", exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
 

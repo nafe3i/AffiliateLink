@@ -1,13 +1,18 @@
 package com.affiliatelink.profile.service;
 
 import com.affiliatelink.common.exception.EmailAlreadyExistsException;
+import com.affiliatelink.common.exception.ProfileNotFoudException;
 import com.affiliatelink.profile.dto.advertiserDto.AdvetiserResponseDTO;
 import com.affiliatelink.profile.dto.advertiserDto.CreateAdvertiserRequestDto;
 import com.affiliatelink.profile.entity.Advertiser;
+import com.affiliatelink.profile.entity.Publisher;
 import com.affiliatelink.profile.repository.AdvertiserRepository;
 import com.affiliatelink.profile.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdvertiserService {
@@ -32,6 +37,20 @@ public class AdvertiserService {
 
         return toResponseDTO(advertiser);
 
+    }
+
+    public List<AdvetiserResponseDTO> getAllAdvertisers() {
+
+        List<Advertiser> advertiserList = advertiserRepository.findAll();
+        return advertiserList.stream().map(adveriser -> toResponseDTO(adveriser)).toList();
+    }
+
+    public AdvetiserResponseDTO getAdvertiser(Long idAdvertiser) {
+        Optional<Advertiser> advertiser = advertiserRepository.findById(idAdvertiser);
+        if (advertiser.isEmpty()) {
+            throw new ProfileNotFoudException("Advertiser not found");
+        }
+        return toResponseDTO(advertiser.get());
     }
 
     private AdvetiserResponseDTO toResponseDTO(Advertiser advertiser) {
