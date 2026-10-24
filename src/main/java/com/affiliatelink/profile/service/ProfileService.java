@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ProfileService {
 
@@ -17,7 +18,7 @@ public class ProfileService {
     public ProfileService(ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
     }
-
+    @Transactional
     public ProfileDTO changeProfileStatus(Long idProfile) {
         Profile profile = profileRepository.findById(idProfile).orElseThrow(() -> new ProfileNotFoudException("Profile not foud."));
 

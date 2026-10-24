@@ -2,7 +2,6 @@ package com.affiliatelink.profile.controller;
 
 
 import com.affiliatelink.profile.dto.ProfileDTO;
-import com.affiliatelink.profile.entity.enums.ProfileStatus;
 import com.affiliatelink.profile.service.ProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
