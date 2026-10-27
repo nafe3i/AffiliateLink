@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: affiliatelink
       POSTGRES_USER: affiliatelink
-      POSTGRES_PASSWORD: amine@2002@N
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
