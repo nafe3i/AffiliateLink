@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AffiliateLinkApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(AffiliateLinkApplication.class, args);
     }
 
