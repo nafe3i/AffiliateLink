@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity()
 @Table(name = "offre_offres")
@@ -33,6 +35,9 @@ public class Offre {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+
+    @OneToMany(mappedBy = "offre")
+    private List<Campagne> campagnes = new ArrayList<>();
 
     protected Offre() {
     }
