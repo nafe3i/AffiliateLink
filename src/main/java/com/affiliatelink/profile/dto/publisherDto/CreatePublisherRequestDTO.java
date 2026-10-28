@@ -1,6 +1,6 @@
 package com.affiliatelink.profile.dto.publisherDto;
 
-import com.affiliatelink.profile.entity.enums.Niche;
+import com.affiliatelink.common.domain.Niche;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;

@@ -1,6 +1,6 @@
 package com.affiliatelink.profile.entity;
 
-import com.affiliatelink.profile.entity.enums.Niche;
+import com.affiliatelink.common.domain.Niche;
 import jakarta.persistence.*;
 
 @Entity
