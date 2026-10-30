@@ -1,6 +1,6 @@
 package com.affiliatelink.offre.entity;
 
-import com.affiliatelink.common.exception.CampagneNotValidateException;
+import com.affiliatelink.common.exception.offre.CampagneNotValidateException;
 import com.affiliatelink.offre.entity.enums.CampagneStatus;
 import com.affiliatelink.offre.entity.enums.PayoutModel;
 import jakarta.persistence.*;

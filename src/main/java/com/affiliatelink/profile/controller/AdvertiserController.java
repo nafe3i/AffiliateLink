@@ -34,7 +34,7 @@ public class AdvertiserController {
         return ResponseEntity.ok(advertiser);
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<AdvetiserResponseDTO> getAdveAdvetiser(@PathVariable("id") Long id) {
         AdvetiserResponseDTO advetiserResponseDTO = advertiserService.getAdvertiser(id);
         return ResponseEntity.ok(advetiserResponseDTO);

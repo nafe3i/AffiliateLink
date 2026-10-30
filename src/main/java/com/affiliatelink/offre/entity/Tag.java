@@ -1,6 +1,6 @@
 package com.affiliatelink.offre.entity;
 
-import com.affiliatelink.common.exception.TagInvalideException;
+import com.affiliatelink.common.exception.offre.TagInvalideException;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -46,5 +46,13 @@ public class Tag {
         }
 
         this.name = normalizedName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    void associerOffre(Offre offre) {
+        offres.add(offre);
     }
 }

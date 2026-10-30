@@ -1,4 +1,4 @@
-package com.affiliatelink.common.exception;
+package com.affiliatelink.common.exception.profil;
 
 public class ProfileNotFoudException extends RuntimeException {
 

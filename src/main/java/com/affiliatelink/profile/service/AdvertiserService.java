@@ -1,13 +1,12 @@
 package com.affiliatelink.profile.service;
 
-import com.affiliatelink.common.exception.EmailAlreadyExistsException;
-import com.affiliatelink.common.exception.ProfileNotFoudException;
-import com.affiliatelink.common.exception.StatusNotActiveException;
+import com.affiliatelink.common.exception.profil.EmailAlreadyExistsException;
+import com.affiliatelink.common.exception.profil.ProfileNotFoudException;
+import com.affiliatelink.common.exception.offre.StatusNotActiveException;
 import com.affiliatelink.profile.ProfileApi;
 import com.affiliatelink.profile.dto.advertiserDto.AdvetiserResponseDTO;
 import com.affiliatelink.profile.dto.advertiserDto.CreateAdvertiserRequestDto;
 import com.affiliatelink.profile.entity.Advertiser;
-import com.affiliatelink.profile.entity.Publisher;
 import com.affiliatelink.profile.entity.enums.ProfileStatus;
 import com.affiliatelink.profile.repository.AdvertiserRepository;
 import com.affiliatelink.profile.repository.ProfileRepository;
@@ -72,7 +71,8 @@ public class AdvertiserService implements ProfileApi {
                 advertiser.getEmail(),
                 advertiser.getCompanyName(),
                 advertiser.getSector(),
-                advertiser.getWebsite());
+                advertiser.getWebsite(),
+                advertiser.getStatus());
     }
 
 

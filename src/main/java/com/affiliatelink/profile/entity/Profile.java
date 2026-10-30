@@ -1,13 +1,12 @@
 package com.affiliatelink.profile.entity;
 
-import com.affiliatelink.common.exception.EmailRequiredException;
-import com.affiliatelink.common.exception.StatusCompteExcetion;
+import com.affiliatelink.common.exception.profil.EmailRequiredException;
+import com.affiliatelink.common.exception.profil.StatusCompteExcetion;
 import com.affiliatelink.profile.entity.enums.ProfileStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)

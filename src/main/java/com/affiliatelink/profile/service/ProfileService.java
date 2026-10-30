@@ -1,6 +1,6 @@
 package com.affiliatelink.profile.service;
 
-import com.affiliatelink.common.exception.ProfileNotFoudException;
+import com.affiliatelink.common.exception.profil.ProfileNotFoudException;
 import com.affiliatelink.profile.ProfileSuspended;
 import com.affiliatelink.profile.dto.ProfileDTO;
 import com.affiliatelink.profile.entity.Profile;
@@ -8,8 +8,6 @@ import com.affiliatelink.profile.entity.enums.ProfileStatus;
 import com.affiliatelink.profile.repository.ProfileRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 import org.springframework.transaction.annotation.Transactional;
 

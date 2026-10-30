@@ -1,7 +1,7 @@
 package com.affiliatelink.profile.service;
 
-import com.affiliatelink.common.exception.EmailAlreadyExistsException;
-import com.affiliatelink.common.exception.ProfileNotFoudException;
+import com.affiliatelink.common.exception.profil.EmailAlreadyExistsException;
+import com.affiliatelink.common.exception.profil.ProfileNotFoudException;
 import com.affiliatelink.profile.dto.publisherDto.CreatePublisherRequestDTO;
 import com.affiliatelink.profile.dto.publisherDto.PublisherResponseDTO;
 import com.affiliatelink.profile.entity.Publisher;

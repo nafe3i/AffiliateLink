@@ -1,7 +1,7 @@
 package com.affiliatelink.offre.entity;
 
 import com.affiliatelink.common.domain.Niche;
-import com.affiliatelink.common.exception.OffreNotValideException;
+import com.affiliatelink.common.exception.offre.OffreNotValideException;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -113,4 +113,52 @@ public class Offre {
         this.landingUrl = landingUrl;
         this.niche = niche;
     }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getAdvertiserId() {
+        return advertiserId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getLandingUrl() {
+        return landingUrl;
+    }
+
+    public Niche getNiche() {
+        return niche;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Set<Tag> getTags() {
+        return java.util.Collections.unmodifiableSet(tags);
+    }
+
+    public void ajouterTag(Tag tag) {
+
+        if (tag == null) {
+            throw new IllegalArgumentException(
+                    "Le tag est obligatoire"
+            );
+        }
+
+        if (tags.add(tag)) {
+            tag.associerOffre(this);
+        }
+    }
+
+
 }
