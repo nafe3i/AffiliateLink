@@ -3,13 +3,11 @@ package com.affiliatelink.offre.entity;
 import com.affiliatelink.common.domain.Niche;
 import com.affiliatelink.common.exception.offre.OffreNotValideException;
 import jakarta.persistence.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity()
 @Table(name = "offre_offres")
@@ -144,7 +142,7 @@ public class Offre {
     }
 
     public Set<Tag> getTags() {
-        return java.util.Collections.unmodifiableSet(tags);
+        return Collections.unmodifiableSet(tags);
     }
 
     public void ajouterTag(Tag tag) {

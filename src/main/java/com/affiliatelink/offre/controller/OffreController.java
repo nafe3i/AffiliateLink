@@ -1,6 +1,7 @@
 
 package com.affiliatelink.offre.controller;
 
+import com.affiliatelink.common.domain.Niche;
 import com.affiliatelink.offre.dto.CreateOffreRequest;
 import com.affiliatelink.offre.dto.OffreResponse;
 import com.affiliatelink.offre.entity.Offre;
@@ -42,8 +43,21 @@ public class OffreController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OffreResponse>> getAllOffres() {
-        return ResponseEntity.ok(offreService.getAllOffres());
+    public ResponseEntity<List<OffreResponse>> getAllOffres(@RequestParam(name = "niche", required = false)
+                                                            Niche niche,
+                                                            @RequestParam(name = "advertiserId", required = false)
+                                                            Long advertiserId,
+                                                            @RequestParam(name = "tag", required = false)
+                                                            String tagName,
+                                                            @RequestParam(value = "keyword", required = false)
+                                                            String keyword,
+                                                            @RequestParam(name = "page", required = false)
+                                                            Integer page,
+                                                            @RequestParam(name = "size", required = false)
+                                                            Integer size,
+                                                            @RequestParam(name = "sort", required = false)
+                                                            String sort) {
+        return ResponseEntity.ok(offreService.getAllOffres(niche,advertiserId,tagName,keyword));
     }
 
     @GetMapping("/{id}")

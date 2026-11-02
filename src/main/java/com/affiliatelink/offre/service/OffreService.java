@@ -1,5 +1,6 @@
 package com.affiliatelink.offre.service;
 
+import com.affiliatelink.common.domain.Niche;
 import com.affiliatelink.common.exception.offre.OffreNotFoundException;
 import com.affiliatelink.offre.dto.CreateOffreRequest;
 import com.affiliatelink.offre.dto.OffreResponse;
@@ -9,6 +10,7 @@ import com.affiliatelink.offre.repository.OffreRepository;
 import com.affiliatelink.offre.repository.TagRepository;
 import com.affiliatelink.profile.ProfileApi;
 
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,26 +67,49 @@ public class OffreService {
         return offreMapping(saved);
     }
 
-    public List<OffreResponse> getAllOffres() {
+    @Transactional(readOnly = true)
+    public List<OffreResponse> getAllOffres(Niche niche, Long advertiserId, String tagName,String keyword) {
 
         List<Offre> offres = offreRepository.findAll();
 
-        List<OffreResponse> offreResponses = offres.stream().map(this::offreMapping).toList();
-
-
+        List<OffreResponse> offreResponses = offres.stream().filter(offre -> niche == null || offre.getNiche() == niche).
+                filter(offre -> advertiserId == null || offre.getAdvertiserId().equals(advertiserId)).
+                filter(offre -> tagName == null || offre.getTags().stream().anyMatch(tag -> tag.getName().equals(tagName))).
+                map(this::offreMapping).toList();
         return offreResponses;
     }
 
 
     @Transactional(readOnly = true)
     public OffreResponse getOffre(Long offreId) {
-        Offre offre = offreRepository.findById(offreId).orElseThrow(() -> new OffreNotFoundException("Offre not found : " + offreId));
-        return offreMapping(offre);
+
+        Offre offre = offreRepository.findById(offreId)
+                .orElseThrow(() ->
+                        new OffreNotFoundException(
+                                "Offre not found : " + offreId
+                        )
+                );
+
+//        System.out.println(
+//                "AVANT : " + offre.tagsSontInitialises()
+//        );
+
+        OffreResponse response = offreMapping(offre);
+
+//        System.out.println(
+//                "APRES : " + offre.tagsSontInitialises()
+//        );
+
+        return response;
     }
 
     private OffreResponse offreMapping(Offre offre) {
 
-        List<String> tagNames = offre.getTags().stream().map(Tag::getName).sorted().toList();
+        List<String> tagNames = offre.getTags()
+                .stream()
+                .map(Tag::getName)
+                .sorted()
+                .toList();
 
         return new OffreResponse(
                 offre.getId(),
@@ -97,4 +122,6 @@ public class OffreService {
                 tagNames
         );
     }
+
+
 }
