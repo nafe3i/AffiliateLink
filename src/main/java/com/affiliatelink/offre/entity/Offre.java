@@ -66,50 +66,14 @@ public class Offre {
                     "L'identifiant de l'annonceur doit être positif"
             );
         }
-
-        // 2. Vérifier le titre
-        if (title == null || title.isBlank()) {
-            throw new OffreNotValideException(
-                    "Le titre de l'offre est obligatoire"
-            );
-        }
-
-        title = title.strip();
-
-        if (title.length() > 255) {
-            throw new OffreNotValideException(
-                    "Le titre ne doit pas dépasser 255 caractères"
-            );
-        }
-
-        // 3. Vérifier l'URL
-        if (landingUrl == null || landingUrl.isBlank()) {
-            throw new OffreNotValideException(
-                    "L'URL de destination est obligatoire"
-            );
-        }
-
-        landingUrl = landingUrl.strip();
-
-        if (landingUrl.length() > 255) {
-            throw new OffreNotValideException(
-                    "L'URL ne doit pas dépasser 255 caractères"
-            );
-        }
-
-        // 4. Vérifier la niche
-        if (niche == null) {
-            throw new OffreNotValideException(
-                    "La niche est obligatoire"
-            );
-        }
-
-        // 5. Initialiser l'entité
         this.advertiserId = advertiserId;
-        this.title = title;
-        this.description = description;
-        this.landingUrl = landingUrl;
-        this.niche = niche;
+        modifierInformations(
+                title,
+                description,
+                landingUrl,
+                niche
+        );
+
     }
 
 
@@ -145,6 +109,55 @@ public class Offre {
         return Collections.unmodifiableSet(tags);
     }
 
+    public void modifierInformations(
+            String title,
+            String description,
+            String landingUrl,
+            Niche niche
+    ) {// 2. Vérifier le titre
+        if (title == null || title.isBlank()) {
+            throw new OffreNotValideException(
+                    "Le titre de l'offre est obligatoire"
+            );
+        }
+
+        title = title.strip();
+
+        if (title.length() > 255) {
+            throw new OffreNotValideException(
+                    "Le titre ne doit pas dépasser 255 caractères"
+            );
+        }
+
+        // 3. Vérifier l'URL
+        if (landingUrl == null || landingUrl.isBlank()) {
+            throw new OffreNotValideException(
+                    "L'URL de destination est obligatoire"
+            );
+        }
+
+        landingUrl = landingUrl.strip();
+
+        if (landingUrl.length() > 255) {
+            throw new OffreNotValideException(
+                    "L'URL ne doit pas dépasser 255 caractères"
+            );
+        }
+
+        // 4. Vérifier la niche
+        if (niche == null) {
+            throw new OffreNotValideException(
+                    "La niche est obligatoire"
+            );
+        }
+        //    après avoir validé tous les paramètres
+        this.title = title;
+        this.description = description;
+        this.landingUrl = landingUrl;
+        this.niche = niche;
+    }
+
+
     public void ajouterTag(Tag tag) {
 
         if (tag == null) {
@@ -158,5 +171,34 @@ public class Offre {
         }
     }
 
+    public void retirerTag(Tag tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException(
+                    "Le tag est obligatoire"
+            );
+        }
+        if (tags.remove(tag)) {
+            tag.dissocierOffre(this);
+        }
+    }
 
+    public void remplacerTags(Set<Tag> nouveautags) {
+        if (nouveautags == null || nouveautags.contains(null)) {
+            throw new IllegalArgumentException(
+                    "Les nouveaux tags sont invalides"
+            );
+        }
+
+        for (Tag ancienTag : new HashSet<>(tags)) {
+            if (!nouveautags.contains(ancienTag)) {
+                retirerTag(ancienTag);
+            }
+        }
+
+        for (Tag nouveauTag : nouveautags) {
+            if (!tags.contains(nouveauTag)) {
+                ajouterTag(nouveauTag);
+            }
+        }
+    }
 }

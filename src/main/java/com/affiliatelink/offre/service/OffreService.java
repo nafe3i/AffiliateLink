@@ -4,6 +4,7 @@ import com.affiliatelink.common.domain.Niche;
 import com.affiliatelink.common.exception.offre.OffreNotFoundException;
 import com.affiliatelink.offre.dto.CreateOffreRequest;
 import com.affiliatelink.offre.dto.OffreResponse;
+import com.affiliatelink.offre.dto.UpdateOffreRequest;
 import com.affiliatelink.offre.entity.Offre;
 import com.affiliatelink.offre.entity.Tag;
 import com.affiliatelink.offre.repository.OffreRepository;
@@ -140,6 +141,41 @@ public class OffreService {
 //        );
 
         return response;
+    }
+
+    @Transactional
+    public OffreResponse modifierOffre(
+            Long id,
+            UpdateOffreRequest request
+    ) {
+        // 1. Rechercher l'offre
+
+
+        Offre offre = offreRepository.findById(id)
+                .orElseThrow(() ->
+                        new OffreNotFoundException(
+                                "Offre not found : " + id
+                        )
+                );
+
+        // 2. Modifier ses informations
+        offre.modifierInformations(request.title(), request.description(), request.landingUrl(), request.niche());
+        // 3. Résoudre les tags en entités Tag
+        Set<Tag> nouveauxTags = new HashSet<>();
+        for (String tagName : request.tags()) {
+            String normalizedName =
+                    tagName.strip().toLowerCase(Locale.ROOT);
+            Tag tag = tagRepository.findByName(normalizedName)
+                    .orElseGet(() ->
+                            tagRepository.save(new Tag(normalizedName))
+                    );
+
+            nouveauxTags.add(tag);
+        }
+        // 4. Remplacer les associations
+        offre.remplacerTags(nouveauxTags);
+        // 5. Retourner le DTO
+        return offreMapping(offre);
     }
 
     private OffreResponse offreMapping(Offre offre) {

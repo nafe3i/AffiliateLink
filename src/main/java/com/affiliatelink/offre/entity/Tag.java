@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -24,6 +25,7 @@ public class Tag {
 
     @ManyToMany(mappedBy = "tags")
     private Set<Offre> offres = new HashSet<>();
+
 
     protected Tag() {
     }
@@ -54,5 +56,29 @@ public class Tag {
 
     void associerOffre(Offre offre) {
         offres.add(offre);
+    }
+
+    void dissocierOffre(Offre offre) {
+        offres.remove(offre);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Tag other)) {
+            return false;
+        }
+
+        return getName() != null
+                && getName().equals(other.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getName());
     }
 }
