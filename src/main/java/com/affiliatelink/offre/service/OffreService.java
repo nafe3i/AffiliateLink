@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class OffreService {
@@ -47,6 +49,8 @@ public class OffreService {
         }
 
         Offre saved = offreRepository.saveAndFlush(offre);
+        return offreMapping(saved);
+    }
 
 //        List<String> tagNames = saved.getTags()
 //                .stream()
@@ -64,18 +68,25 @@ public class OffreService {
 //                saved.getCreatedAt(),
 //                tagNames
 //        );
-        return offreMapping(saved);
-    }
 
     @Transactional(readOnly = true)
-    public List<OffreResponse> getAllOffres(Niche niche, Long advertiserId, String tagName,String keyword) {
+    public List<OffreResponse> getAllOffres(Niche niche, Long advertiserId, String tagName, String keyword) {
 
         List<Offre> offres = offreRepository.findAll();
 
         List<OffreResponse> offreResponses = offres.stream().filter(offre -> niche == null || offre.getNiche() == niche).
-                filter(offre -> advertiserId == null || offre.getAdvertiserId().equals(advertiserId)).
+                filter(offre ->
+                {
+                    System.out.printf("filtrage efectuer");
+                    return advertiserId == null || offre.getAdvertiserId().equals(advertiserId);
+                }).
                 filter(offre -> tagName == null || offre.getTags().stream().anyMatch(tag -> tag.getName().equals(tagName))).
-                map(this::offreMapping).toList();
+                filter(offre ->
+                        keyword == null ||
+                                offre.getTitle().toLowerCase(Locale.ROOT)
+                                        .contains(keyword.toLowerCase(Locale.ROOT))
+                ).
+                map(this::offreMapping).toList().sort(Comparator.comparing(Offre::getCreatedAt));
         return offreResponses;
     }
 
