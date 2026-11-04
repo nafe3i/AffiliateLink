@@ -9,6 +9,10 @@ import com.affiliatelink.offre.service.OffreService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +47,7 @@ public class OffreController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OffreResponse>> getAllOffres(@RequestParam(name = "niche", required = false)
+    public ResponseEntity<Page<OffreResponse>> getAllOffres(@RequestParam(name = "niche", required = false)
                                                             Niche niche,
                                                             @RequestParam(name = "advertiserId", required = false)
                                                             Long advertiserId,
@@ -51,13 +55,26 @@ public class OffreController {
                                                             String tagName,
                                                             @RequestParam(value = "keyword", required = false)
                                                             String keyword,
-                                                            @RequestParam(name = "page", required = false)
-                                                            Integer page,
-                                                            @RequestParam(name = "size", required = false)
-                                                            Integer size,
-                                                            @RequestParam(name = "sort", required = false)
-                                                            String sort) {
-        return ResponseEntity.ok(offreService.getAllOffres(niche,advertiserId,tagName,keyword));
+                                                            @PageableDefault(
+                                                                    page = 0,
+                                                                    size = 10,
+                                                                    sort = "createdAt",
+                                                                    direction = Sort.Direction.DESC
+                                                            )
+                                                            Pageable pageable
+//                                                            @RequestParam(defaultValue = "0") Integer page,
+//                                                            @RequestParam(defaultValue = "10") Integer size,
+//                                                            @RequestParam(defaultValue = "createdAt,desc") String sort
+    ) {
+        return ResponseEntity.ok(
+                offreService.getAllOffres(
+                        niche,
+                        advertiserId,
+                        tagName,
+                        keyword,
+                        pageable
+                )
+        );
     }
 
     @GetMapping("/{id}")

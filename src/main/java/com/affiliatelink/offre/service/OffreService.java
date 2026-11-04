@@ -8,16 +8,20 @@ import com.affiliatelink.offre.entity.Offre;
 import com.affiliatelink.offre.entity.Tag;
 import com.affiliatelink.offre.repository.OffreRepository;
 import com.affiliatelink.offre.repository.TagRepository;
+import com.affiliatelink.offre.repository.specification.OffreSpecifications;
 import com.affiliatelink.profile.ProfileApi;
+import org.springframework.data.domain.Page;
 
 import org.hibernate.Hibernate;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @Service
 public class OffreService {
@@ -70,25 +74,49 @@ public class OffreService {
 //        );
 
     @Transactional(readOnly = true)
-    public List<OffreResponse> getAllOffres(Niche niche, Long advertiserId, String tagName, String keyword) {
+    public Page<OffreResponse> getAllOffres(
+            Niche niche,
+            Long advertiserId,
+            String tagName,
+            String keyword,
+            Pageable pageable
+    ) {
+        Specification<Offre> specification =
+                OffreSpecifications.filtrer(
+                        niche,
+                        advertiserId,
+                        tagName,
+                        keyword
+                );
 
-        List<Offre> offres = offreRepository.findAll();
+        Set<String> allowedSortFields = Set.of("id", "title", "createdAt");
+        for (Sort.Order order : pageable.getSort()) {
+            if (!allowedSortFields.contains(order.getProperty())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Champ de tri non autorisé : " + order.getProperty()
+                );
+            }
+        }
+        Page<Offre> offres =
+                offreRepository.findAll(specification, pageable);
 
-        List<OffreResponse> offreResponses = offres.stream().filter(offre -> niche == null || offre.getNiche() == niche).
-                filter(offre ->
-                {
-                    System.out.printf("filtrage efectuer");
-                    return advertiserId == null || offre.getAdvertiserId().equals(advertiserId);
-                }).
-                filter(offre -> tagName == null || offre.getTags().stream().anyMatch(tag -> tag.getName().equals(tagName))).
-                filter(offre ->
-                        keyword == null ||
-                                offre.getTitle().toLowerCase(Locale.ROOT)
-                                        .contains(keyword.toLowerCase(Locale.ROOT))
-                ).
-                map(this::offreMapping).toList().sort(Comparator.comparing(Offre::getCreatedAt));
-        return offreResponses;
+        return offres.map(this::offreMapping);
     }
+//
+//        List<OffreResponse> offreResponses = offres.stream().filter(offre -> niche == null || offre.getNiche() == niche).
+//                filter(offre ->
+//                {
+//                    System.out.printf("filtrage efectuer");
+//                    return advertiserId == null || offre.getAdvertiserId().equals(advertiserId);
+//                }).
+//                filter(offre -> tagName == null || offre.getTags().stream().anyMatch(tag -> tag.getName().equals(tagName))).
+//                filter(offre ->
+//                        keyword == null ||
+//                                offre.getTitle().toLowerCase(Locale.ROOT)
+//                                        .contains(keyword.toLowerCase(Locale.ROOT))
+//                ).
+//                map(this::offreMapping).toList().sort(Comparator.comparing(Offre::getCreatedAt));
 
 
     @Transactional(readOnly = true)
