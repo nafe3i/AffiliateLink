@@ -201,4 +201,16 @@ public class Offre {
             }
         }
     }
+
+    void enregistrerCampagne(Campagne campagne) {
+        if (campagne == null || campagne.getOffre() != this) {
+            throw new IllegalArgumentException(
+                    "La campagne doit appartenir à cette offre"
+            );
+        }
+
+        if (!campagnes.contains(campagne)) {
+            campagnes.add(campagne);
+        }
+    }
 }
