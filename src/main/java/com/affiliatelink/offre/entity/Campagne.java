@@ -158,6 +158,8 @@ public class Campagne {
 
         // Toute nouvelle campagne commence en DRAFT
         this.status = CampagneStatus.DRAFT;
+
+        offre.enregistrerCampagne(this);
     }
 
     public Long getId() {
