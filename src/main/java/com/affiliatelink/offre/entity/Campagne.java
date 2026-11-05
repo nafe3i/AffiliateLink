@@ -1,6 +1,7 @@
 package com.affiliatelink.offre.entity;
 
 import com.affiliatelink.common.exception.offre.CampagneNotValidateException;
+import com.affiliatelink.common.exception.offre.CampagneStatusConflictException;
 import com.affiliatelink.offre.entity.enums.CampagneStatus;
 import com.affiliatelink.offre.entity.enums.PayoutModel;
 import jakarta.persistence.*;
@@ -65,14 +66,14 @@ public class Campagne {
 
         // 1. L'offre est obligatoire
         if (offre == null) {
-            throw new IllegalArgumentException(
+            throw new CampagneNotValidateException(
                     "Une campagne doit appartenir à une offre"
             );
         }
 
         // 2. Le nom est obligatoire
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new CampagneNotValidateException(
                     "Le nom de la campagne est obligatoire"
             );
         }
@@ -80,20 +81,20 @@ public class Campagne {
         name = name.strip();
 
         if (name.length() > 255) {
-            throw new IllegalArgumentException(
+            throw new CampagneNotValidateException(
                     "Le nom ne doit pas dépasser 255 caractères"
             );
         }
 
         // 3. Vérification des dates
         if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException(
+            throw new CampagneNotValidateException(
                     "Les dates sont obligatoires"
             );
         }
 
         if (!endDate.isAfter(startDate)) {
-            throw new IllegalArgumentException(
+            throw new CampagneNotValidateException(
                     "La date de fin doit être après la date de début"
             );
         }
@@ -101,14 +102,14 @@ public class Campagne {
         // 4. Vérification du budget
         if (budget == null ||
                 budget.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException(
+            throw new CampagneNotValidateException(
                     "Le budget doit être strictement positif"
             );
         }
 
         // 5. Le modèle de rémunération est obligatoire
         if (payoutModel == null) {
-            throw new IllegalArgumentException(
+            throw new CampagneNotValidateException(
                     "Le modèle de rémunération est obligatoire"
             );
         }
@@ -123,7 +124,7 @@ public class Campagne {
 
         // 7. Règle particulière au CPA_PERCENT
         if (payoutModel == PayoutModel.CPA_PERCENT &&
-                payoutValue.compareTo(BigDecimal.valueOf(100)) >= 0) {
+                payoutValue.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new CampagneNotValidateException(
                     "Le pourcentage doit être inférieur à 100"
             );
@@ -159,5 +160,95 @@ public class Campagne {
         this.status = CampagneStatus.DRAFT;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public BigDecimal getBudget() {
+        return budget;
+    }
+
+    public PayoutModel getPayoutModel() {
+        return payoutModel;
+    }
+
+    public BigDecimal getPayoutValue() {
+        return payoutValue;
+    }
+
+    public CampagneStatus getStatus() {
+        return status;
+    }
+
+    public Offre getOffre() {
+        return offre;
+    }
+
+    public void activer(LocalDate aujourdHui) {
+
+        if (aujourdHui == null) {
+            throw new CampagneNotValidateException(
+                    "La date actuelle est obligatoire"
+            );
+        }
+
+        // Seules DRAFT et PAUSED peuvent devenir ACTIVE
+        if (status != CampagneStatus.DRAFT &&
+                status != CampagneStatus.PAUSED) {
+
+            throw new CampagneStatusConflictException(
+                    "Impossible d'activer une campagne avec le statut : " + status
+            );
+        }
+
+        // Une campagne expirée ne peut pas être activée
+        if (aujourdHui.isAfter(endDate)) {
+
+            throw new CampagneStatusConflictException(
+                    "Impossible d'activer une campagne expirée"
+            );
+        }
+
+        this.status = CampagneStatus.ACTIVE;
+    }
+
+    public void mettreEnPause() {
+
+        if (status != CampagneStatus.ACTIVE) {
+
+            throw new CampagneStatusConflictException(
+                    "Seule une campagne ACTIVE peut être mise en pause. Statut actuel : "
+                            + status
+            );
+        }
+
+        this.status = CampagneStatus.PAUSED;
+    }
+
+    public void terminer() {
+
+        if (status != CampagneStatus.ACTIVE &&
+                status != CampagneStatus.PAUSED) {
+
+            throw new CampagneStatusConflictException(
+                    "Seule une campagne ACTIVE ou PAUSED peut être terminée. Statut actuel : "
+                            + status
+            );
+        }
+
+        this.status = CampagneStatus.ENDED;
+    }
 
 }

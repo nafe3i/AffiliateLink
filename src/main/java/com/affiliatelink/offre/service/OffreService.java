@@ -2,11 +2,11 @@ package com.affiliatelink.offre.service;
 
 import com.affiliatelink.common.domain.Niche;
 import com.affiliatelink.common.exception.offre.OffreNotFoundException;
-import com.affiliatelink.offre.dto.CreateOffreRequest;
-import com.affiliatelink.offre.dto.OffreResponse;
-import com.affiliatelink.offre.dto.UpdateOffreRequest;
+import com.affiliatelink.offre.dto.*;
 import com.affiliatelink.offre.entity.Offre;
 import com.affiliatelink.offre.entity.Tag;
+import com.affiliatelink.offre.mapper.CampagneMapper;
+import com.affiliatelink.offre.repository.CampagneRepository;
 import com.affiliatelink.offre.repository.OffreRepository;
 import com.affiliatelink.offre.repository.TagRepository;
 import com.affiliatelink.offre.repository.specification.OffreSpecifications;
@@ -30,11 +30,15 @@ public class OffreService {
     private final OffreRepository offreRepository;
     private final TagRepository tagRepository;
     private final ProfileApi profileApi;
+    private final CampagneMapper campagneMapper;
+    private final CampagneRepository campagneRepository;
 
-    public OffreService(OffreRepository offreRepository, TagRepository tagRepository, ProfileApi profileApi) {
+    public OffreService(OffreRepository offreRepository, TagRepository tagRepository, ProfileApi profileApi, CampagneMapper campagneMapper, CampagneRepository campagneRepository) {
         this.offreRepository = offreRepository;
         this.tagRepository = tagRepository;
         this.profileApi = profileApi;
+        this.campagneMapper = campagneMapper;
+        this.campagneRepository = campagneRepository;
     }
 
     @Transactional
@@ -176,6 +180,35 @@ public class OffreService {
         offre.remplacerTags(nouveauxTags);
         // 5. Retourner le DTO
         return offreMapping(offre);
+    }
+
+    @Transactional(readOnly = true)
+    public OffreDetailResponse consulterOffreAvecCampagnes(Long id) {
+
+        Offre offre = offreRepository.findById(id)
+                .orElseThrow(() ->
+                        new OffreNotFoundException(
+                                "Offre introuvable : " + id
+                        )
+                );
+
+        OffreResponse base = offreMapping(offre);
+
+        List<CampagneResponse> campagnes = campagneMapper.toResponses(
+                campagneRepository.findByOffre_IdOrderByIdDesc(id)
+        );
+
+        return new OffreDetailResponse(
+                base.id(),
+                base.advertiserId(),
+                base.title(),
+                base.description(),
+                base.landingUrl(),
+                base.niche(),
+                base.createdAt(),
+                base.tags(),
+                campagnes
+        );
     }
 
     private OffreResponse offreMapping(Offre offre) {

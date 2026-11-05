@@ -24,7 +24,7 @@ public class Tag {
 
 
     @ManyToMany(mappedBy = "tags")
-    private Set<Offre> offres = new HashSet<>();
+    private final Set<Offre> offres = new HashSet<>();
 
 
     protected Tag() {

@@ -3,6 +3,7 @@ package com.affiliatelink.offre.controller;
 
 import com.affiliatelink.common.domain.Niche;
 import com.affiliatelink.offre.dto.CreateOffreRequest;
+import com.affiliatelink.offre.dto.OffreDetailResponse;
 import com.affiliatelink.offre.dto.OffreResponse;
 import com.affiliatelink.offre.dto.UpdateOffreRequest;
 import com.affiliatelink.offre.entity.Offre;
@@ -79,8 +80,12 @@ public class OffreController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OffreResponse> getOffre(@PathVariable("id") Long offreId) {
-        return ResponseEntity.ok(offreService.getOffre(offreId));
+    public ResponseEntity<OffreDetailResponse> getOffre(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                offreService.consulterOffreAvecCampagnes(id)
+        );
     }
 
 

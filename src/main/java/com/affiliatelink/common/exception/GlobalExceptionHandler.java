@@ -1,10 +1,7 @@
 
 package com.affiliatelink.common.exception;
 
-import com.affiliatelink.common.exception.offre.CampagneNotValidateException;
-import com.affiliatelink.common.exception.offre.OffreNotValideException;
-import com.affiliatelink.common.exception.offre.StatusNotActiveException;
-import com.affiliatelink.common.exception.offre.TagInvalideException;
+import com.affiliatelink.common.exception.offre.*;
 
 import com.affiliatelink.common.exception.profil.EmailAlreadyExistsException;
 import com.affiliatelink.common.exception.profil.EmailRequiredException;
@@ -186,5 +183,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(status)
                 .body(body);
+    }
+
+    @ExceptionHandler(CampagneStatusConflictException.class)
+    public ResponseEntity<Map<String, String>> handleCampagneStatusConflict(
+            CampagneStatusConflictException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "error", "CAMPAGNE_STATUS_CONFLICT",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(CampagneNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCampagneNotFound(
+            CampagneNotFoundException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "error", "CAMPAGNE_NOT_FOUND",
+                        "message", ex.getMessage()
+                ));
     }
 }
