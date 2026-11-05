@@ -168,5 +168,17 @@ public class CampagneService {
         return campagnes.map(campagneMapper::toResponse);
     }
 
+    @Transactional
+    public void mettreEnPauseCampagnesAnnonceur(Long advertiserId) {
 
+        List<Campagne> campagnesActives =
+                campagneRepository.findByOffre_AdvertiserIdAndStatus(
+                        advertiserId,
+                        CampagneStatus.ACTIVE
+                );
+
+        for (Campagne campagne : campagnesActives) {
+            campagne.mettreEnPause();
+        }
+    }
 }
