@@ -1,5 +1,5 @@
-
 package com.affiliatelink.profile.service;
+
 
 import com.affiliatelink.common.domain.Niche;
 import com.affiliatelink.common.exception.profil.ProfileNotFoudException;
@@ -9,27 +9,23 @@ import com.affiliatelink.profile.entity.Advertiser;
 import com.affiliatelink.profile.entity.Publisher;
 import com.affiliatelink.profile.entity.enums.ProfileStatus;
 import com.affiliatelink.profile.repository.ProfileRepository;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProfileServiceTest {
@@ -43,75 +39,49 @@ class ProfileServiceTest {
     @InjectMocks
     private ProfileService profileService;
 
-    // --------------------------------------------------
-    // Transitions de statut d'un Advertiser
-    // --------------------------------------------------
-
-    @ParameterizedTest(
-            name = "{0} -> {1}, evenement attendu : {2}"
-    )
+    @ParameterizedTest(name = "{0} -> {1} ; événement attendu : {2}")
     @MethodSource("advertiserTransitions")
-    @DisplayName("Transitions de statut d'un Advertiser")
+    @DisplayName("Transitions d'état d'un Advertiser et événements associés")
     void shouldApplyAdvertiserStatusTransition(
             ProfileStatus initialStatus,
             ProfileStatus expectedStatus,
             boolean eventExpected
     ) {
-
         // GIVEN
         Long id = 2L;
-
         Advertiser advertiser = new Advertiser(
-                "advertiser@example.com",
-                "YouCode",
-                "TECH",
-                "https://example.com"
+                "advertiser@example.com", "YouCode", "TECH", "https://example.com"
         );
-
         ReflectionTestUtils.setField(advertiser, "id", id);
 
-        // Préparer l'état initial
         switch (initialStatus) {
+            case PENDING -> { /* statut par défaut */ }
             case ACTIVE -> advertiser.activate();
-
             case SUSPENDED -> {
                 advertiser.activate();
                 advertiser.suspend();
             }
-
-            case PENDING -> {
-                // État initial du constructeur
-            }
         }
+        Assertions.assertEquals(initialStatus, advertiser.getStatus());
+        Mockito.when(profileRepository.findById(id)).thenReturn(Optional.of(advertiser));
 
-        assertEquals(initialStatus, advertiser.getStatus());
-
-        when(profileRepository.findById(id))
-                .thenReturn(Optional.of(advertiser));
-
+        // Le service enregistre un TransactionSynchronization : ceci n'est PAS un vrai commit.
         TransactionSynchronizationManager.initSynchronization();
-
         try {
-
             // WHEN
-            ProfileDTO result =
-                    profileService.changeProfileStatus(id);
+            ProfileDTO actual = profileService.changeProfileStatus(id);
 
-            // THEN : résultat et état
-            assertNotNull(result);
-            assertEquals(expectedStatus, result.status());
-            assertEquals(expectedStatus, advertiser.getStatus());
-            assertEquals(id, result.id());
-            assertEquals(advertiser.getEmail(), result.email());
+            // THEN
+            Assertions.assertEquals(expectedStatus, actual.status());
+            Assertions.assertEquals(expectedStatus, advertiser.getStatus());
+            Assertions.assertEquals(id, actual.id());
+            Assertions.assertEquals(advertiser.getEmail(), actual.email());
 
-            // THEN : événement métier
             if (eventExpected) {
-                verify(applicationEventPublisher)
-                        .publishEvent(new ProfileSuspended(id));
+                Mockito.verify(applicationEventPublisher).publishEvent(new ProfileSuspended(id));
             } else {
-                verifyNoInteractions(applicationEventPublisher);
+                Mockito.verifyNoInteractions(applicationEventPublisher);
             }
-
         } finally {
             TransactionSynchronizationManager.clearSynchronization();
         }
@@ -119,93 +89,53 @@ class ProfileServiceTest {
 
     static Stream<Arguments> advertiserTransitions() {
         return Stream.of(
-                Arguments.of(
-                        ProfileStatus.PENDING,
-                        ProfileStatus.ACTIVE,
-                        false
-                ),
-                Arguments.of(
-                        ProfileStatus.ACTIVE,
-                        ProfileStatus.SUSPENDED,
-                        true
-                ),
-                Arguments.of(
-                        ProfileStatus.SUSPENDED,
-                        ProfileStatus.ACTIVE,
-                        false
-                )
+                Arguments.of(ProfileStatus.PENDING, ProfileStatus.ACTIVE, false),
+                Arguments.of(ProfileStatus.ACTIVE, ProfileStatus.SUSPENDED, true),
+                Arguments.of(ProfileStatus.SUSPENDED, ProfileStatus.ACTIVE, false)
         );
     }
 
-    // --------------------------------------------------
-    // Publisher ACTIVE -> SUSPENDED
-    // --------------------------------------------------
-
     @Test
-    @DisplayName(
-            "Un Publisher actif est suspendu sans événement ProfileSuspended"
-    )
+    @DisplayName("La suspension d'un Publisher ne publie pas ProfileSuspended")
     void shouldSuspendActivePublisherWithoutPublishingEvent() {
-
         // GIVEN
         Long id = 4L;
-
         Publisher publisher = new Publisher(
-                "publisher@example.com",
-                "Ali",
-                "Test",
-                Niche.TECH,
-                "Développement informatique",
-                "Morocco"
+                "publisher@example.com", "Ali", "Amine", Niche.TECH,
+                "Développement informatique", "Morocco"
         );
-
         ReflectionTestUtils.setField(publisher, "id", id);
         publisher.activate();
-
-        when(profileRepository.findById(id))
-                .thenReturn(Optional.of(publisher));
+        Mockito.when(profileRepository.findById(id)).thenReturn(Optional.of(publisher));
 
         TransactionSynchronizationManager.initSynchronization();
-
         try {
-
             // WHEN
-            ProfileDTO result =
-                    profileService.changeProfileStatus(id);
+            ProfileDTO result = profileService.changeProfileStatus(id);
 
             // THEN
-            assertEquals(ProfileStatus.SUSPENDED, result.status());
-            assertEquals(ProfileStatus.SUSPENDED, publisher.getStatus());
-            assertEquals(id, result.id());
-
-            verifyNoInteractions(applicationEventPublisher);
-
+            Assertions.assertEquals(ProfileStatus.SUSPENDED, result.status());
+            Assertions.assertEquals(ProfileStatus.SUSPENDED, publisher.getStatus());
+            Assertions.assertEquals(id, result.id());
+            Assertions.assertEquals(publisher.getEmail(), result.email());
+            Mockito.verifyNoInteractions(applicationEventPublisher);
         } finally {
             TransactionSynchronizationManager.clearSynchronization();
         }
     }
 
-    // --------------------------------------------------
-    // Profil inexistant
-    // --------------------------------------------------
-
     @Test
-    @DisplayName("Un profil inexistant déclenche ProfileNotFoudException")
+    @DisplayName("Un profil absent provoque ProfileNotFoudException sans événement")
     void shouldThrowWhenProfileNotFound() {
-
         // GIVEN
-        Long idNotFound = 99L;
-
-        when(profileRepository.findById(idNotFound))
-                .thenReturn(Optional.empty());
+        Long absentId = 99L;
+        Mockito.when(profileRepository.findById(absentId)).thenReturn(Optional.empty());
 
         // WHEN / THEN
-        assertThrows(
+        Assertions.assertThrows(
                 ProfileNotFoudException.class,
-                () -> profileService.changeProfileStatus(idNotFound)
+                () -> profileService.changeProfileStatus(absentId)
         );
-
-        verify(profileRepository).findById(idNotFound);
-        verifyNoInteractions(applicationEventPublisher);
+        Mockito.verifyNoInteractions(applicationEventPublisher);
     }
 }
